@@ -952,12 +952,12 @@ wm_struct_vals[3]+=(ui->dpy_height-desk_height);
 	    }
 	  
 	  if (have_matchbox_wm)
-	    {/*
+	    {
 	      XChangeProperty(ui->xdpy, ui->xwin, 
 			      atom_NET_WM_WINDOW_TYPE, XA_ATOM, 32, 
 			      PropModeReplace, 
 			      (unsigned char *) &atom_NET_WM_WINDOW_TYPE_TOOLBAR, 1);
-	    */}
+	    }
 	  else
 	    {
 	      /*
