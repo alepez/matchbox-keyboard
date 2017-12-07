@@ -1003,6 +1003,7 @@ mb_kbd_ui_resize(MBKeyboardUI *ui, int width, int height)
   int               height_font_pt_size, width_font_pt_size;
   int               next_row_y,  n_rows, extra_key_height;
 
+#if 0
   MARK();
 
   // Don't scale beyond a sensible height on wide screens.
@@ -1025,6 +1026,7 @@ height=ui->imyh;
 }else{
 ui->imyh=height;
 }
+#endif
 
   // Store requested width and height for later use.
   ui->kbd_width 	= width;
@@ -1265,7 +1267,7 @@ mb_kbd_ui_handle_configure(MBKeyboardUI *ui,
 void mb_kbd_ui_handle_reconfigure(MBKeyboardUI *ui)
 {
 	mb_kbd_ui_allocate_ui_layout(ui, &ui->base_alloc_width, &ui->base_alloc_height);
-	mb_kbd_ui_resize(ui, ui->kbd_width, ui->kbd_height); 
+	mb_kbd_ui_resize(ui, ui->base_alloc_width, ui->base_alloc_height); 
 }
 
 void
