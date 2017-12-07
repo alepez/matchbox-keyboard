@@ -248,10 +248,6 @@
                 <default display=" " action="space" />
             </key>
             <key width="20" extended="false">
-                <default display="@" />
-                <shifted display="'" />
-            </key>
-            <key width="20" extended="false">
                 <default display="image:key-up.png" action="up" />
             </key>
             <key width="20" extended="false">
