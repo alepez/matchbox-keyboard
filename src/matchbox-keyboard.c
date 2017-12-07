@@ -69,17 +69,19 @@ mb_kbd_new (int argc, char **argv)
   kb->col_spacing = 2;
   kb->row_spacing = 2;
 
-  kb->font_family  = strdup("droidsans");
+  kb->font_family  = strdup("sans-serif");
   kb->font_pt_size = 10;
   kb->font_variant = strdup("bold");
 
   snprintf(cfg_path, 1024, "%s/.matchbox/kb_config", getenv("HOME"));
- cfg=fopen(cfg_path,"r");
- if(cfg){
- fscanf(cfg,"%d %d %d %d %s %d",&want_daemon,&invert,&gest,&override,&gm,&kb->font_pt_size,&vr);
- }
-geometry=gm;
-variant=vr;
+  cfg=fopen(cfg_path,"r");
+
+  if (cfg){
+    fscanf(cfg,"%d %d %d %d %s %d",&want_daemon,&invert,&gest,&override,&gm,&kb->font_pt_size,&vr);
+    geometry=gm;
+    variant=vr;
+    fclose(cfg);
+  }
 
   for (i = 1; i < argc; i++) 
     {
