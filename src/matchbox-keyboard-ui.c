@@ -925,6 +925,7 @@ ui->xwin = XCreateWindow(ui->xdpy,
 			{
 				iMyHeight = desk_height * (ui->height_percent / 100.0f);
 			}
+      printf("mb_kbd_ui_resize %d %d    %s:%d\n", desk_width, iMyHeight, __FILE__, __LINE__);
 			mb_kbd_ui_resize(ui, desk_width,  iMyHeight);
 			
 			
@@ -957,16 +958,6 @@ wm_struct_vals[3]+=(ui->dpy_height-desk_height);
 			      atom_NET_WM_WINDOW_TYPE, XA_ATOM, 32, 
 			      PropModeReplace, 
 			      (unsigned char *) &atom_NET_WM_WINDOW_TYPE_TOOLBAR, 1);
-	    }
-	  else
-	    {
-	      /*
-		XChangeProperty(ui->xdpy, ui->xwin, 
-		atom_NET_WM_WINDOW_TYPE, XA_ATOM, 32, 
-		PropModeReplace, 
-		(unsigned char *) &atom_NET_WM_WINDOW_TYPE_DOCK, 1);
-	      */
-	      
 	    }
 	}
     }
@@ -1225,6 +1216,7 @@ ui->imyh=height;
 
 }
 
+#if 0 // Disabled, causing double repaint on matchbox
 void
 mb_kbd_ui_handle_configure(MBKeyboardUI *ui,
 			   int           width,
@@ -1258,6 +1250,7 @@ mb_kbd_ui_handle_configure(MBKeyboardUI *ui,
 
 
 }
+#endif
 
 /*!
  * Reconfigure the layout based on the current layout and current
@@ -1267,7 +1260,16 @@ mb_kbd_ui_handle_configure(MBKeyboardUI *ui,
 void mb_kbd_ui_handle_reconfigure(MBKeyboardUI *ui)
 {
 	mb_kbd_ui_allocate_ui_layout(ui, &ui->base_alloc_width, &ui->base_alloc_height);
-	mb_kbd_ui_resize(ui, ui->base_alloc_width, ui->base_alloc_height); 
+      printf("mb_kbd_ui_resize %d %d    %s:%d\n", ui->base_alloc_width, ui->base_alloc_height, __FILE__, __LINE__);
+  /* int width = ui->base_alloc_width; */
+  /* int height = ui->base_alloc_height; */
+
+  int desk_width, desk_height;
+  get_desktop_area(ui, NULL, NULL, &desk_width, &desk_height);
+  int height = desk_height * (ui->height_percent / 100.0f);
+  int width = desk_width;
+
+	mb_kbd_ui_resize(ui, width, height);
 }
 
 void
@@ -1388,12 +1390,15 @@ break;
 }
 			  
 			case ConfigureNotify:
+#if 0 // Disabled, causing double repaint on matchbox
 				if (xev.xconfigure.window == ui->xwin 
 					&&  (xev.xconfigure.width != ui->xwin_width
 					|| xev.xconfigure.height != ui->xwin_height))
 				{
+          printf("mb_kbd_ui_handle_configure\n");
 					mb_kbd_ui_handle_configure(ui, xev.xconfigure.width, xev.xconfigure.height);
 				}
+#endif
 				if (xev.xconfigure.window == ui->xwin_root)		    
 				{
 				    update_display_size(ui);
