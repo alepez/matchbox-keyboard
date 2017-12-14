@@ -256,6 +256,8 @@ static void mb_kdb_ui_unit_key_size(MBKeyboardUI* ui, int* width, int* height) {
   if (mb_kbd_ui_display_height(ui) <= 320) {
     *height += 4;
   }
+
+  printf("w: %d, h: %d\n", *width, *height);
 }
 
 static void mb_kbd_ui_min_key_size(MBKeyboardUI* ui, MBKeyboardKey* key, int* width, int* height) {
@@ -711,6 +713,7 @@ static int mb_kbd_ui_resources_create(MBKeyboardUI* ui) {
           if (ui->height_percent > 0 && ui->height_percent <= 100) {
             iMyHeight = desk_height * (ui->height_percent / 100.0f);
           }
+          printf("desk_width=%d desk_height=%d\n", desk_width, desk_height);
           printf("mb_kbd_ui_resize %d %d    %s:%d\n", desk_width, iMyHeight, __FILE__, __LINE__);
           mb_kbd_ui_resize(ui, desk_width, iMyHeight);
         }
@@ -991,15 +994,26 @@ mb_kbd_ui_handle_configure(MBKeyboardUI *ui,
  */
 void mb_kbd_ui_handle_reconfigure(MBKeyboardUI* ui) {
   mb_kbd_ui_allocate_ui_layout(ui, &ui->base_alloc_width, &ui->base_alloc_height);
-  printf("mb_kbd_ui_resize %d %d    %s:%d\n", ui->base_alloc_width, ui->base_alloc_height, __FILE__, __LINE__);
-  /* int width = ui->base_alloc_width; */
-  /* int height = ui->base_alloc_height; */
-
   int desk_width, desk_height;
   get_desktop_area(ui, NULL, NULL, &desk_width, &desk_height);
-  int height = desk_height * (ui->height_percent / 100.0f);
+
+  /* This is almost an hack. minimized is a special layout, where kbd_height < 100 */
+  boolean minimized = ui->base_alloc_height < 100;
+  /* Full keyboard has 5 rows, minimized only 1. That's why factor is 0.2 */
+  float heightFactor = minimized ? 0.2 : 1.0;
+
+  /* height should be relative to desktop height */
+  int height = desk_height * (ui->height_percent / 100.0f * heightFactor);
+
+  /* We want the keyboard from left to right */
   int width = desk_width;
 
+#if 0
+  printf("kbd_width=%d, kbd_height=%d\n", ui->kbd_width, ui->kbd_height);
+  printf("alloc_width=%d, alloc_height=%d\n", ui->base_alloc_width, ui->base_alloc_height);
+  printf("desk_width=%d desk_height=%d\n", desk_width, desk_height);
+  printf("mb_kbd_ui_resize %d %d    %s:%d\n", width, height, __FILE__, __LINE__);
+#endif
   mb_kbd_ui_resize(ui, width, height);
 }
 
