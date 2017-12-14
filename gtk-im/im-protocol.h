@@ -1,4 +1,4 @@
-/* 
+/*
  *  Matchbox Keyboard - A lightweight software keyboard.
  *
  *  Author: Ross Burton <ross@o-hand.com>
@@ -19,4 +19,4 @@
 
 #include "matchbox-keyboard-remote.h"
 
-void protocol_send_event (MBKeyboardRemoteOperation op);
+void protocol_send_event(MBKeyboardRemoteOperation op);

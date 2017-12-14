@@ -1,4 +1,4 @@
-/* 
+/*
  *  Matchbox Keyboard - A lightweight software keyboard.
  *
  *  Authored By Matthew Allum <mallum@o-hand.com>

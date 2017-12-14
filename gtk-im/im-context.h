@@ -1,4 +1,4 @@
-/* 
+/*
  *  Matchbox Keyboard - A lightweight software keyboard.
  *
  *  Author: Ross Burton <ross@o-hand.com>
@@ -22,16 +22,14 @@
 typedef struct _MbIMContext MbIMContext;
 typedef struct _MbIMContextClass MbIMContextClass;
 
-struct _MbIMContext
-{
+struct _MbIMContext {
   GtkIMContextSimple context;
 };
 
-struct _MbIMContextClass
-{
+struct _MbIMContextClass {
   GtkIMContextSimpleClass parent_class;
 };
 
-void mb_im_context_register_type (GTypeModule *module);
+void mb_im_context_register_type(GTypeModule* module);
 
-GtkIMContext *mb_im_context_new (void);
+GtkIMContext* mb_im_context_new(void);

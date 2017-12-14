@@ -1,4 +1,4 @@
-/* 
+/*
  *  Matchbox Keyboard - A lightweight software keyboard.
  *
  *  Authored By Matthew Allum <mallum@o-hand.com>
@@ -23,9 +23,8 @@
 #include "matchbox-keyboard.h"
 #include <X11/Xft/Xft.h>
 
-MBKeyboardUIBackend*
-mb_kbd_ui_xft_init(MBKeyboardUI *ui);
+MBKeyboardUIBackend* mb_kbd_ui_xft_init(MBKeyboardUI* ui);
 
-#define MB_KBD_UI_BACKEND_INIT_FUNC(ui)  mb_kbd_ui_xft_init((ui))
+#define MB_KBD_UI_BACKEND_INIT_FUNC(ui) mb_kbd_ui_xft_init((ui))
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
  *  Matchbox Keyboard - A lightweight software keyboard.
  *
  *  Authored By Matthew Allum <mallum@o-hand.com>
@@ -22,12 +22,11 @@
 
 #include "matchbox-keyboard.h"
 
-#include <cairo/cairo.h>
 #include <cairo/cairo-xlib.h>
+#include <cairo/cairo.h>
 
-MBKeyboardUIBackend*
-mb_kbd_ui_cairo_init(MBKeyboardUI *ui);
+MBKeyboardUIBackend* mb_kbd_ui_cairo_init(MBKeyboardUI* ui);
 
-#define MB_KBD_UI_BACKEND_INIT_FUNC(ui)  mb_kbd_ui_cairo_init((ui))
+#define MB_KBD_UI_BACKEND_INIT_FUNC(ui) mb_kbd_ui_cairo_init((ui))
 
 #endif

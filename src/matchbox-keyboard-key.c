@@ -1,4 +1,4 @@
-/* 
+/*
  *  Matchbox Keyboard - A lightweight software keyboard.
  *
  *  Authored By Matthew Allum <mallum@o-hand.com>
@@ -23,650 +23,472 @@
 
 #define MBKB_N_KEY_STATES 5
 
-typedef struct MBKeyboardKeyFace
-{
-  MBKeyboardKeyFaceType  type;
+typedef struct MBKeyboardKeyFace {
+  MBKeyboardKeyFaceType type;
 
-  union
-  {
-    MBKeyboardImage *image;
-    char            *str;
+  union {
+    MBKeyboardImage* image;
+    char* str;
   } u;
-} 
-MBKeyboardKeyFace;
+} MBKeyboardKeyFace;
 
-typedef struct MBKeyboardKeyAction
-{
-  MBKeyboardKeyActionType  type;
-  union 
-  {
-    char                  *glyph;
-    KeySym                 keysym;
-    MBKeyboardKeyModType   type;
+typedef struct MBKeyboardKeyAction {
+  MBKeyboardKeyActionType type;
+  union {
+    char* glyph;
+    KeySym keysym;
+    MBKeyboardKeyModType type;
   } u;
-} 
-MBKeyboardKeyAction;
-
+} MBKeyboardKeyAction;
 
 /* A key can have 5 different 'states' */
 
-typedef struct MBKeyboardKeyState
-{
+typedef struct MBKeyboardKeyState {
   MBKeyboardKeyAction action;
-  MBKeyboardKeyFace   face;
+  MBKeyboardKeyFace face;
 
 } MBKeyboardKeyState;
 
-struct MBKeyboardKey
-{
-  MBKeyboard            *kbd;
-  MBKeyboardKeyState    *states[N_MBKeyboardKeyStateTypes];
-  MBKeyboardRow         *row;
+struct MBKeyboardKey {
+  MBKeyboard* kbd;
+  MBKeyboardKeyState* states[N_MBKeyboardKeyStateTypes];
+  MBKeyboardRow* row;
 
-  int                    alloc_x, alloc_y, alloc_width, alloc_height;
+  int alloc_x, alloc_y, alloc_width, alloc_height;
 
-  int                    extra_width_pad;  /* via win resizes */
-  int                    extra_height_pad;
+  int extra_width_pad; /* via win resizes */
+  int extra_height_pad;
 
-  boolean                obeys_caps;
-  boolean                fill;	     /* width fills avialble space */
-  int                    req_uwidth; /* unit width in 1/1000's */
-  boolean                is_blank;   /* 'blank' keys are spacers */
-  boolean                extended;   /* only show in landscape */
+  boolean obeys_caps;
+  boolean fill;     /* width fills avialble space */
+  int req_uwidth;   /* unit width in 1/1000's */
+  boolean is_blank; /* 'blank' keys are spacers */
+  boolean extended; /* only show in landscape */
 
-  MBKeyboardStateType    sets_kbdstate; /* needed */
+  MBKeyboardStateType sets_kbdstate; /* needed */
 };
 
-static void
-_mb_kbd_key_init_state(MBKeyboardKey           *key,
-		       MBKeyboardKeyStateType   state)
-{
+static void _mb_kbd_key_init_state(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
   key->states[state] = util_malloc0(sizeof(MBKeyboardKeyState));
 }
 
-MBKeyboardKey*
-mb_kbd_key_new(MBKeyboard *kbd)
-{
-  MBKeyboardKey *key = NULL;
-  int            i;
+MBKeyboardKey* mb_kbd_key_new(MBKeyboard* kbd) {
+  MBKeyboardKey* key = NULL;
+  int i;
 
-  key      = util_malloc0(sizeof(MBKeyboardKey));
+  key = util_malloc0(sizeof(MBKeyboardKey));
   key->kbd = kbd;
 
-  for (i=0; i<N_MBKeyboardKeyStateTypes; i++)
+  for (i = 0; i < N_MBKeyboardKeyStateTypes; i++)
     key->states[i] = NULL;
 
   return key;
 }
 
-void
-mb_kbd_key_set_obey_caps(MBKeyboardKey  *key, boolean obey)
-{
+void mb_kbd_key_set_obey_caps(MBKeyboardKey* key, boolean obey) {
   key->obeys_caps = obey;
 }
 
-boolean
-mb_kbd_key_get_obey_caps(MBKeyboardKey  *key)
-{
+boolean mb_kbd_key_get_obey_caps(MBKeyboardKey* key) {
   return key->obeys_caps;
 }
 
-void
-mb_kbd_key_set_req_uwidth(MBKeyboardKey  *key, int uwidth)
-{
+void mb_kbd_key_set_req_uwidth(MBKeyboardKey* key, int uwidth) {
   key->req_uwidth = uwidth;
 }
 
-int
-mb_kbd_key_get_req_uwidth(MBKeyboardKey  *key)
-{
+int mb_kbd_key_get_req_uwidth(MBKeyboardKey* key) {
   return key->req_uwidth;
 }
 
-void
-mb_kbd_key_set_fill(MBKeyboardKey  *key, boolean fill)
-{
+void mb_kbd_key_set_fill(MBKeyboardKey* key, boolean fill) {
   MARK();
   key->fill = fill;
 }
 
-boolean
-mb_kbd_key_get_fill(MBKeyboardKey  *key)
-{
+boolean mb_kbd_key_get_fill(MBKeyboardKey* key) {
   return key->fill;
 }
 
-void
-mb_kbd_key_set_blank(MBKeyboardKey  *key, boolean blank)
-{
+void mb_kbd_key_set_blank(MBKeyboardKey* key, boolean blank) {
   key->is_blank = blank;
 }
 
-boolean
-mb_kbd_key_is_blank(MBKeyboardKey  *key)
-{
+boolean mb_kbd_key_is_blank(MBKeyboardKey* key) {
   return key->is_blank;
 }
 
+void mb_kbd_key_set_geometry(MBKeyboardKey* key, int x, int y, int width, int height) {
+  if (x != -1) key->alloc_x = x;
 
-void
-mb_kbd_key_set_geometry(MBKeyboardKey  *key,
-			int x,
-			int y,
-			int width,
-			int height)
-{
-  if (x != -1)
-    key->alloc_x = x;
+  if (y != -1) key->alloc_y = y;
 
-  if (y != -1)
-    key->alloc_y = y;
+  if (width != -1) key->alloc_width = width;
 
-  if (width != -1)
-    key->alloc_width = width;
-
-  if (height != -1)
-    key->alloc_height = height;
+  if (height != -1) key->alloc_height = height;
 }
 
-int 
-mb_kbd_key_abs_x(MBKeyboardKey *key) 
-{ 
+int mb_kbd_key_abs_x(MBKeyboardKey* key) {
   return mb_kbd_row_x(key->row) + key->alloc_x;
 }
 
-int 
-mb_kbd_key_abs_y(MBKeyboardKey *key) 
-{ 
+int mb_kbd_key_abs_y(MBKeyboardKey* key) {
   return mb_kbd_row_y(key->row) + key->alloc_y;
 }
 
-int 
-mb_kbd_key_x(MBKeyboardKey *key) 
-{ 
+int mb_kbd_key_x(MBKeyboardKey* key) {
   return key->alloc_x;
 }
 
-int 
-mb_kbd_key_y(MBKeyboardKey *key) 
-{ 
+int mb_kbd_key_y(MBKeyboardKey* key) {
   return key->alloc_y;
 }
 
-int 
-mb_kbd_key_width(MBKeyboardKey *key) 
-{ 
+int mb_kbd_key_width(MBKeyboardKey* key) {
   return key->alloc_width;
 }
 
-int 
-mb_kbd_key_height(MBKeyboardKey *key) 
-{ 
+int mb_kbd_key_height(MBKeyboardKey* key) {
   return key->alloc_height;
 }
 
-void
-mb_kbd_key_set_extra_width_pad(MBKeyboardKey  *key, int pad)
-{
+void mb_kbd_key_set_extra_width_pad(MBKeyboardKey* key, int pad) {
   key->alloc_width -= key->extra_width_pad;
   key->extra_width_pad = pad;
   key->alloc_width += key->extra_width_pad;
 }
 
-void
-mb_kbd_key_set_extra_height_pad(MBKeyboardKey  *key, int pad)
-{
+void mb_kbd_key_set_extra_height_pad(MBKeyboardKey* key, int pad) {
   key->alloc_height -= key->extra_height_pad;
   key->extra_height_pad = pad;
   key->alloc_height += key->extra_height_pad;
 }
 
-int
-mb_kbd_key_get_extra_height_pad(MBKeyboardKey  *key)
-{
+int mb_kbd_key_get_extra_height_pad(MBKeyboardKey* key) {
   return key->extra_height_pad;
 }
 
-int
-mb_kbd_key_get_extra_width_pad(MBKeyboardKey  *key)
-{
+int mb_kbd_key_get_extra_width_pad(MBKeyboardKey* key) {
   return key->extra_width_pad;
 }
 
-void
-mb_kbd_key_set_extended(MBKeyboardKey  *key, boolean extend)
-{
+void mb_kbd_key_set_extended(MBKeyboardKey* key, boolean extend) {
   key->extended = extend;
 }
 
-boolean
-mb_kbd_key_get_extended(MBKeyboardKey  *key)
-{
+boolean mb_kbd_key_get_extended(MBKeyboardKey* key) {
   return key->extended;
 }
 
-
 /* URG Nasty - some stuf should be public-ish */
-void 
-mb_kbd_key_set_row(MBKeyboardKey *key, MBKeyboardRow *row) 
-{ 
+void mb_kbd_key_set_row(MBKeyboardKey* key, MBKeyboardRow* row) {
   key->row = row;
 }
 
-
-boolean
-mb_kdb_key_has_state(MBKeyboardKey           *key,
-		     MBKeyboardKeyStateType   state)
-{
+boolean mb_kdb_key_has_state(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
   return (key->states[state] != NULL);
 }
 
-void
-mb_kbd_key_set_glyph_face(MBKeyboardKey           *key,
-			  MBKeyboardKeyStateType   state,
-			  const char              *glyph)
-{
-  if (key->states[state] == NULL)
-    _mb_kbd_key_init_state(key, state);
+void mb_kbd_key_set_glyph_face(MBKeyboardKey* key, MBKeyboardKeyStateType state, const char* glyph) {
+  if (key->states[state] == NULL) _mb_kbd_key_init_state(key, state);
 
-  key->states[state]->face.type    = MBKeyboardKeyFaceGlyph;
-  key->states[state]->face.u.str   = strdup(glyph);
+  key->states[state]->face.type = MBKeyboardKeyFaceGlyph;
+  key->states[state]->face.u.str = strdup(glyph);
 }
 
-const char*
-mb_kbd_key_get_glyph_face(MBKeyboardKey           *key,
-			  MBKeyboardKeyStateType   state)
-{
-  if (key->states[state] 
-      && key->states[state]->face.type == MBKeyboardKeyFaceGlyph)
-    {
-      return key->states[state]->face.u.str;
-    }
+const char* mb_kbd_key_get_glyph_face(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
+  if (key->states[state] && key->states[state]->face.type == MBKeyboardKeyFaceGlyph) {
+    return key->states[state]->face.u.str;
+  }
   return NULL;
 }
 
-void
-mb_kbd_key_set_image_face(MBKeyboardKey           *key,
-			  MBKeyboardKeyStateType   state,
-			  MBKeyboardImage         *image)
-{
+void mb_kbd_key_set_image_face(MBKeyboardKey* key, MBKeyboardKeyStateType state, MBKeyboardImage* image) {
 
-  if (key->states[state] == NULL)
-    _mb_kbd_key_init_state(key, state);
+  if (key->states[state] == NULL) _mb_kbd_key_init_state(key, state);
 
-  key->states[state]->face.type    = MBKeyboardKeyFaceImage;
+  key->states[state]->face.type = MBKeyboardKeyFaceImage;
   key->states[state]->face.u.image = image;
 }
 
-MBKeyboardImage*
-mb_kbd_key_get_image_face(MBKeyboardKey           *key,
-			  MBKeyboardKeyStateType   state)
-{
-  if (key->states[state] 
-      && key->states[state]->face.type == MBKeyboardKeyFaceImage)
-    {
-      return key->states[state]->face.u.image;
-    }
+MBKeyboardImage* mb_kbd_key_get_image_face(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
+  if (key->states[state] && key->states[state]->face.type == MBKeyboardKeyFaceImage) {
+    return key->states[state]->face.u.image;
+  }
   return NULL;
 }
 
-void
-mb_kbd_key_set_char_action(MBKeyboardKey           *key,
-			   MBKeyboardKeyStateType   state,
-			   const char              *glyphs)
-{
-  if (key->states[state] == NULL)
-    _mb_kbd_key_init_state(key, state);
-  
+void mb_kbd_key_set_char_action(MBKeyboardKey* key, MBKeyboardKeyStateType state, const char* glyphs) {
+  if (key->states[state] == NULL) _mb_kbd_key_init_state(key, state);
+
   key->states[state]->action.type = MBKeyboardKeyActionGlyph;
   key->states[state]->action.u.glyph = strdup(glyphs);
 }
 
-const char*
-mb_kbd_key_get_char_action(MBKeyboardKey           *key,
-			   MBKeyboardKeyStateType   state)
-{
-  if (key->states[state] 
-      && key->states[state]->action.type == MBKeyboardKeyActionGlyph)
+const char* mb_kbd_key_get_char_action(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
+  if (key->states[state] && key->states[state]->action.type == MBKeyboardKeyActionGlyph)
     return key->states[state]->action.u.glyph;
 
   return NULL;
 }
 
-void
-mb_kbd_key_set_keysym_action(MBKeyboardKey           *key,
-			     MBKeyboardKeyStateType   state,
-			     KeySym                   keysym)
-{
-  if (key->states[state] == NULL)
-    _mb_kbd_key_init_state(key, state);
+void mb_kbd_key_set_keysym_action(MBKeyboardKey* key, MBKeyboardKeyStateType state, KeySym keysym) {
+  if (key->states[state] == NULL) _mb_kbd_key_init_state(key, state);
 
   key->states[state]->action.type = MBKeyboardKeyActionXKeySym;
   key->states[state]->action.u.keysym = keysym;
 }
 
-KeySym
-mb_kbd_key_get_keysym_action(MBKeyboardKey           *key,
-			     MBKeyboardKeyStateType   state)
-{
-  if (key->states[state] 
-      && key->states[state]->action.type == MBKeyboardKeyActionXKeySym)
+KeySym mb_kbd_key_get_keysym_action(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
+  if (key->states[state] && key->states[state]->action.type == MBKeyboardKeyActionXKeySym)
     return key->states[state]->action.u.keysym;
 
   return None;
 }
 
-
-void
-mb_kbd_key_set_modifer_action(MBKeyboardKey          *key,
-			      MBKeyboardKeyStateType  state,
-			      MBKeyboardKeyModType    type)
-{
-  if (key->states[state] == NULL)
-    _mb_kbd_key_init_state(key, state);
+void mb_kbd_key_set_modifer_action(MBKeyboardKey* key, MBKeyboardKeyStateType state, MBKeyboardKeyModType type) {
+  if (key->states[state] == NULL) _mb_kbd_key_init_state(key, state);
 
   key->states[state]->action.type = MBKeyboardKeyActionModifier;
-  key->states[state]->action.u.type   = type;
+  key->states[state]->action.u.type = type;
 }
 
-MBKeyboardKeyModType 
-mb_kbd_key_get_modifer_action(MBKeyboardKey          *key,
-			      MBKeyboardKeyStateType  state)
-{
-  if (key->states[state] 
-      && key->states[state]->action.type == MBKeyboardKeyActionModifier)
+MBKeyboardKeyModType mb_kbd_key_get_modifer_action(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
+  if (key->states[state] && key->states[state]->action.type == MBKeyboardKeyActionModifier)
     return key->states[state]->action.u.type;
 
   return 0;
 }
 
-
-MBKeyboardKeyFaceType
-mb_kbd_key_get_face_type(MBKeyboardKey           *key,
-			 MBKeyboardKeyStateType   state)
-{
-  if (key->states[state]) 
-    return key->states[state]->face.type;
+MBKeyboardKeyFaceType mb_kbd_key_get_face_type(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
+  if (key->states[state]) return key->states[state]->face.type;
 
   return 0;
 }
 
-
-MBKeyboardKeyActionType
-mb_kbd_key_get_action_type(MBKeyboardKey           *key,
-			   MBKeyboardKeyStateType   state)
-{
-  if (key->states[state]) 
-    return key->states[state]->action.type;
+MBKeyboardKeyActionType mb_kbd_key_get_action_type(MBKeyboardKey* key, MBKeyboardKeyStateType state) {
+  if (key->states[state]) return key->states[state]->action.type;
 
   return 0;
 }
 
+void mb_kbd_key_press(MBKeyboardKey* key) {
+  /* XXX what about state handling XXX */
+  // MBKeyboardKeyStateType state = mb_kbd_keys_current_state(key->kbd);
+  // int flags = 0;
+  boolean queue_full_kbd_redraw = True;
 
-void
-mb_kbd_key_press(MBKeyboardKey *key)
-{
-	  /* XXX what about state handling XXX */
-	  //MBKeyboardKeyStateType state = mb_kbd_keys_current_state(key->kbd);
-	  //int flags = 0;
-	  boolean queue_full_kbd_redraw = True;
+  if (!key || mb_kbd_key_is_blank(key)) {
+    DBG("No key at press.");
+    return;
+  }
 
-	  if (! key || mb_kbd_key_is_blank(key))
-	  {
-		DBG("No key at press.");
-		return;
-	  }
-	
-	mb_kbd_set_held_key(key->kbd, key);
-  
-	if (queue_full_kbd_redraw)
-		mb_kbd_redraw(key->kbd);
-	else
-		mb_kbd_redraw_key(key->kbd, key);
+  mb_kbd_set_held_key(key->kbd, key);
+
+  if (queue_full_kbd_redraw)
+    mb_kbd_redraw(key->kbd);
+  else
+    mb_kbd_redraw_key(key->kbd, key);
 }
 
-boolean 
-mb_kbd_key_is_held(MBKeyboard *kbd, MBKeyboardKey *key)
-{
-  MBKeyboardKeyStateType  state;
+boolean mb_kbd_key_is_held(MBKeyboard* kbd, MBKeyboardKey* key) {
+  MBKeyboardKeyStateType state;
 
-  if (mb_kbd_get_held_key(key->kbd) ==  key)
-    return True;
+  if (mb_kbd_get_held_key(key->kbd) == key) return True;
 
   /* XXX below should probably go into own func */
 
-  state = mb_kbd_keys_current_state(kbd); 
+  state = mb_kbd_keys_current_state(kbd);
 
-  if (!mb_kdb_key_has_state(key, state))
-    {
-      if (state == MBKeyboardKeyStateNormal)
-	return False;  /* keys should at least have a normal state */
-      else
-        state = MBKeyboardKeyStateNormal;
+  if (!mb_kdb_key_has_state(key, state)) {
+    if (state == MBKeyboardKeyStateNormal)
+      return False; /* keys should at least have a normal state */
+    else
+      state = MBKeyboardKeyStateNormal;
+  }
+
+  if (mb_kbd_key_get_action_type(key, state) == MBKeyboardKeyActionModifier) {
+    switch (mb_kbd_key_get_modifer_action(key, state)) {
+    case MBKeyboardKeyModShift:
+      if (mb_kbd_has_state(kbd, MBKeyboardStateShifted)) return True;
+      break;
+    case MBKeyboardKeyModMod1:
+      if (mb_kbd_has_state(kbd, MBKeyboardStateMod1)) return True;
+      break;
+    case MBKeyboardKeyModMod2:
+      if (mb_kbd_has_state(kbd, MBKeyboardStateMod2)) return True;
+      break;
+    case MBKeyboardKeyModMod3:
+      if (mb_kbd_has_state(kbd, MBKeyboardStateMod3)) return True;
+      break;
+    case MBKeyboardKeyModCaps:
+      if (mb_kbd_has_state(kbd, MBKeyboardStateCaps)) return True;
+      break;
+    case MBKeyboardKeyModControl:
+      if (mb_kbd_has_state(kbd, MBKeyboardStateControl)) return True;
+      break;
+    case MBKeyboardKeyModAlt:
+      if (mb_kbd_has_state(kbd, MBKeyboardStateAlt)) return True;
+    case MBKeyboardKeyModLayout:
+      if (mb_kbd_has_state(kbd, MBKeyboardKeyModLayout)) return True;
+      break;
+
+    default:
+      DBG("unknown modifier action");
+      break;
     }
-
-  if (mb_kbd_key_get_action_type(key, state) == MBKeyboardKeyActionModifier)
-    {
-	switch ( mb_kbd_key_get_modifer_action(key, state) )
-	  {
-	  case MBKeyboardKeyModShift:
-	    if (mb_kbd_has_state(kbd, MBKeyboardStateShifted))
-	      return True;
-	    break;
-	  case MBKeyboardKeyModMod1:
-	    if (mb_kbd_has_state(kbd, MBKeyboardStateMod1))
-	      return True;
-	    break;
-	  case MBKeyboardKeyModMod2:
-	    if (mb_kbd_has_state(kbd, MBKeyboardStateMod2))
-	      return True;
-	    break;
-	  case MBKeyboardKeyModMod3:
-	    if (mb_kbd_has_state(kbd, MBKeyboardStateMod3))
-	      return True;
-	    break;
-	  case MBKeyboardKeyModCaps:
-	    if (mb_kbd_has_state(kbd, MBKeyboardStateCaps))
-	      return True;
-	    break;
-          case MBKeyboardKeyModControl:
-	    if (mb_kbd_has_state(kbd, MBKeyboardStateControl))
-	      return True;
-	    break;
-	  case MBKeyboardKeyModAlt:
-	    if (mb_kbd_has_state(kbd, MBKeyboardStateAlt))
-	      return True;
-	  case MBKeyboardKeyModLayout:
-	    if (mb_kbd_has_state(kbd, MBKeyboardKeyModLayout))
-	      return True;
-	    break;
-
-	  default:
-	    DBG("unknown modifier action");
-	    break;
-	  }
-    }
+  }
 
   return False;
 }
 
-void mb_kbd_key_release(MBKeyboard *kbd)
-{
-	mb_kbd_key_release_send(kbd, 1);
+void mb_kbd_key_release(MBKeyboard* kbd) {
+  mb_kbd_key_release_send(kbd, 1);
 }
 
-void
-mb_kbd_key_release_send(MBKeyboard *kbd, Bool bSendKey)
-{
-	MBKeyboardKey *key 			= mb_kbd_get_held_key(kbd);
-	
-	if (! key) return;
-	
-	MBKeyboardKeyStateType state 	= mb_kbd_keys_current_state(key->kbd);
-	int flags 						= 0;
-	boolean queue_full_kbd_redraw	= True;
-	
-	 /* XXX below fakekey mods probably better in ui */
-	
-	 if (mb_kbd_has_state(key->kbd, MBKeyboardStateControl))
-		flags |= FAKEKEYMOD_CONTROL;
+void mb_kbd_key_release_send(MBKeyboard* kbd, Bool bSendKey) {
+  MBKeyboardKey* key = mb_kbd_get_held_key(kbd);
 
-	if (mb_kbd_has_state(key->kbd, MBKeyboardStateAlt))
-		flags |= FAKEKEYMOD_ALT;
+  if (!key) return;
 
-	if (mb_kbd_has_state(key->kbd, MBKeyboardStateCaps)  && mb_kbd_key_get_obey_caps(key))
-		state = MBKeyboardKeyStateShifted;
-	
-	if (!mb_kdb_key_has_state(key, state))
-	{
-		if (state == MBKeyboardKeyStateNormal)
-			return;  /* keys should at least have a normal state */
-		else
-			state = MBKeyboardKeyStateNormal;
-	}
+  MBKeyboardKeyStateType state = mb_kbd_keys_current_state(key->kbd);
+  int flags = 0;
+  boolean queue_full_kbd_redraw = True;
 
-	if (key && bSendKey)
-	{		
-		 switch (mb_kbd_key_get_action_type(key, state))
-		{
-			case MBKeyboardKeyActionGlyph:
-			{
-				const char *key_char;
+  /* XXX below fakekey mods probably better in ui */
 
-				if ((key_char = mb_kbd_key_get_char_action(key, state)) != NULL)
-				  {
-					mb_kbd_ui_send_press(key->kbd->ui, key_char, flags);
-					//mb_kbd_set_held_key(key->kbd, key);
-				  }
-				break;
-			}
-			case MBKeyboardKeyActionXKeySym:
-			{
-				KeySym ks;
-				if ((ks = mb_kbd_key_get_keysym_action(key, state)) != None)
-				{
-					mb_kbd_ui_send_keysym_press(key->kbd->ui, ks, flags);
-					//mb_kbd_set_held_key(key->kbd, key);
-				}
-				break;
-			}
-			case MBKeyboardKeyActionModifier:
-			{
-			
-				switch ( mb_kbd_key_get_modifer_action(key, state) )
-				  {
-					 case MBKeyboardKeyModShift:
-						 mb_kbd_toggle_state(key->kbd, MBKeyboardStateShifted);
-						 queue_full_kbd_redraw = True;
-						break;
-					 case MBKeyboardKeyModMod1:
-						 mb_kbd_toggle_state(key->kbd, MBKeyboardStateMod1);
-						 queue_full_kbd_redraw = True;
-						 break;
-					 case MBKeyboardKeyModMod2:
-						mb_kbd_toggle_state(key->kbd, MBKeyboardStateMod2);
-						queue_full_kbd_redraw = True;
-						break;
-					 case MBKeyboardKeyModMod3:
-						mb_kbd_toggle_state(key->kbd, MBKeyboardStateMod3);
-						queue_full_kbd_redraw = True;
-						break;
-					 case MBKeyboardKeyModCaps:
-						mb_kbd_toggle_state(key->kbd, MBKeyboardStateCaps);
-						queue_full_kbd_redraw = True;
-						break;
-					 case MBKeyboardKeyModControl:
-						mb_kbd_toggle_state(key->kbd, MBKeyboardStateControl);
-						break;
-					 case MBKeyboardKeyModAlt:
-						mb_kbd_toggle_state(key->kbd, MBKeyboardStateAlt);
-						break;
+  if (mb_kbd_has_state(key->kbd, MBKeyboardStateControl)) flags |= FAKEKEYMOD_CONTROL;
 
-					 // Xlab: change keyboard layout
-					 case MBKeyboardKeyModLayout:
-						mb_kbd_incr_layout(key->kbd, 1);
-						mb_kbd_ui_handle_reconfigure(key->kbd->ui);
-						mb_kbd_ui_redraw(key->kbd->ui);
-						break;
+  if (mb_kbd_has_state(key->kbd, MBKeyboardStateAlt)) flags |= FAKEKEYMOD_ALT;
 
-					// Xlab: hide keyboard button
-					case MBKeyboardKeyModMin: 
-            					mb_kbd_ui_hide(key->kbd->ui);
-         					break;
-					 default:
+  if (mb_kbd_has_state(key->kbd, MBKeyboardStateCaps) && mb_kbd_key_get_obey_caps(key))
+    state = MBKeyboardKeyStateShifted;
 
-					    DBG("unknown modifier action");
-					    break;
-				}
-			}
-			
-			default:
-				break;
-		}
-	}
-	
-	if (mb_kbd_key_get_action_type(key, state) != MBKeyboardKeyActionModifier && mb_kbd_has_any_state(key->kbd))
-	{
-	      mb_kbd_remove_state(key->kbd, (MBKeyboardStateShifted|
-					MBKeyboardStateMod1|
-					MBKeyboardStateMod2|
-					MBKeyboardStateMod3|
-					MBKeyboardStateControl|
-					MBKeyboardStateAlt|
-					MBKeyboardKeyModLayout| // Xlab: change keyboard layout
-					MBKeyboardKeyModMin));  // Xlab: hide keyboard button
-	}
+  if (!mb_kdb_key_has_state(key, state)) {
+    if (state == MBKeyboardKeyStateNormal)
+      return; /* keys should at least have a normal state */
+    else
+      state = MBKeyboardKeyStateNormal;
+  }
 
-	mb_kbd_set_held_key(kbd, NULL);
-	mb_kbd_ui_send_release(kbd->ui);
-	
-	if (queue_full_kbd_redraw)
-		mb_kbd_redraw(key->kbd);
-	else
-		mb_kbd_redraw_key(key->kbd, key);
+  if (key && bSendKey) {
+    switch (mb_kbd_key_get_action_type(key, state)) {
+    case MBKeyboardKeyActionGlyph: {
+      const char* key_char;
+
+      if ((key_char = mb_kbd_key_get_char_action(key, state)) != NULL) {
+        mb_kbd_ui_send_press(key->kbd->ui, key_char, flags);
+        // mb_kbd_set_held_key(key->kbd, key);
+      }
+      break;
+    }
+    case MBKeyboardKeyActionXKeySym: {
+      KeySym ks;
+      if ((ks = mb_kbd_key_get_keysym_action(key, state)) != None) {
+        mb_kbd_ui_send_keysym_press(key->kbd->ui, ks, flags);
+        // mb_kbd_set_held_key(key->kbd, key);
+      }
+      break;
+    }
+    case MBKeyboardKeyActionModifier: {
+
+      switch (mb_kbd_key_get_modifer_action(key, state)) {
+      case MBKeyboardKeyModShift:
+        mb_kbd_toggle_state(key->kbd, MBKeyboardStateShifted);
+        queue_full_kbd_redraw = True;
+        break;
+      case MBKeyboardKeyModMod1:
+        mb_kbd_toggle_state(key->kbd, MBKeyboardStateMod1);
+        queue_full_kbd_redraw = True;
+        break;
+      case MBKeyboardKeyModMod2:
+        mb_kbd_toggle_state(key->kbd, MBKeyboardStateMod2);
+        queue_full_kbd_redraw = True;
+        break;
+      case MBKeyboardKeyModMod3:
+        mb_kbd_toggle_state(key->kbd, MBKeyboardStateMod3);
+        queue_full_kbd_redraw = True;
+        break;
+      case MBKeyboardKeyModCaps:
+        mb_kbd_toggle_state(key->kbd, MBKeyboardStateCaps);
+        queue_full_kbd_redraw = True;
+        break;
+      case MBKeyboardKeyModControl:
+        mb_kbd_toggle_state(key->kbd, MBKeyboardStateControl);
+        break;
+      case MBKeyboardKeyModAlt:
+        mb_kbd_toggle_state(key->kbd, MBKeyboardStateAlt);
+        break;
+
+      // Xlab: change keyboard layout
+      case MBKeyboardKeyModLayout:
+        mb_kbd_incr_layout(key->kbd, 1);
+        mb_kbd_ui_handle_reconfigure(key->kbd->ui);
+        mb_kbd_ui_redraw(key->kbd->ui);
+        break;
+
+      // Xlab: hide keyboard button
+      case MBKeyboardKeyModMin:
+        mb_kbd_ui_hide(key->kbd->ui);
+        break;
+      default:
+
+        DBG("unknown modifier action");
+        break;
+      }
+    }
+
+    default:
+      break;
+    }
+  }
+
+  if (mb_kbd_key_get_action_type(key, state) != MBKeyboardKeyActionModifier && mb_kbd_has_any_state(key->kbd)) {
+    mb_kbd_remove_state(key->kbd, (MBKeyboardStateShifted | MBKeyboardStateMod1 | MBKeyboardStateMod2 |
+                                   MBKeyboardStateMod3 | MBKeyboardStateControl | MBKeyboardStateAlt |
+                                   MBKeyboardKeyModLayout | // Xlab: change keyboard layout
+                                   MBKeyboardKeyModMin));   // Xlab: hide keyboard button
+  }
+
+  mb_kbd_set_held_key(kbd, NULL);
+  mb_kbd_ui_send_release(kbd->ui);
+
+  if (queue_full_kbd_redraw)
+    mb_kbd_redraw(key->kbd);
+  else
+    mb_kbd_redraw_key(key->kbd, key);
 }
 
-void
-mb_kbd_key_dump_key(MBKeyboardKey *key)
-{
+void mb_kbd_key_dump_key(MBKeyboardKey* key) {
   int i;
 
-  char state_lookup[][32] =
-    {
-	"Normal",	//MBKeyboardKeyStateNormal
-	"Shifted" ,	// MBKeyboardKeyStateShifted
-	"Mod1" ,		// MBKeyboardKeyStateMod1
-	"Mod2" ,		// MBKeyboardKeyStateMod2
-	"Mod3" ,		// MBKeyboardKeyStateMod3
-   "Layout",	 	// MBKeyboardKeyModLayout
-      "Min",	 	// MBKeyboardKeyModMin
-    };
+  char state_lookup[][32] = {
+      "Normal",  // MBKeyboardKeyStateNormal
+      "Shifted", // MBKeyboardKeyStateShifted
+      "Mod1",    // MBKeyboardKeyStateMod1
+      "Mod2",    // MBKeyboardKeyStateMod2
+      "Mod3",    // MBKeyboardKeyStateMod3
+      "Layout",  // MBKeyboardKeyModLayout
+      "Min",     // MBKeyboardKeyModMin
+  };
 
   fprintf(stderr, "-------------------------------\n");
   fprintf(stderr, "Dumping info for key at %p\n", key);
 
-  for (i = 0; i < N_MBKeyboardKeyStateTypes; i++)
-    {
-      if (mb_kdb_key_has_state(key, i))
-	{
-	  fprintf(stderr, "state : %s\n", state_lookup[i]);
-	  fprintf(stderr, "\tface type %i", mb_kbd_key_get_face_type(key, i));
+  for (i = 0; i < N_MBKeyboardKeyStateTypes; i++) {
+    if (mb_kdb_key_has_state(key, i)) {
+      fprintf(stderr, "state : %s\n", state_lookup[i]);
+      fprintf(stderr, "\tface type %i", mb_kbd_key_get_face_type(key, i));
 
-	  if (mb_kbd_key_get_face_type(key, i) == MBKeyboardKeyFaceGlyph)
-	    {
-	      fprintf(stderr, ", showing '%s'", 
-		      mb_kbd_key_get_glyph_face(key , i));
-	    }
+      if (mb_kbd_key_get_face_type(key, i) == MBKeyboardKeyFaceGlyph) {
+        fprintf(stderr, ", showing '%s'", mb_kbd_key_get_glyph_face(key, i));
+      }
 
-	  fprintf(stderr, "\n");
+      fprintf(stderr, "\n");
 
-	  fprintf(stderr, "\taction type %i\n", 
-		  mb_kbd_key_get_action_type(key, i));
-
-	}
+      fprintf(stderr, "\taction type %i\n", mb_kbd_key_get_action_type(key, i));
     }
+  }
 
   fprintf(stderr, "-------------------------------\n");
-
 }
-

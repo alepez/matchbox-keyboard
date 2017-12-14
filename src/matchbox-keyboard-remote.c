@@ -1,4 +1,4 @@
-/* 
+/*
  *  Matchbox Keyboard - A lightweight software keyboard.
  *
  *  Authored By Matthew Allum <mallum@o-hand.com>
@@ -17,33 +17,25 @@
  *
  */
 
-#include "matchbox-keyboard.h"
 #include "matchbox-keyboard-remote.h"
+#include "matchbox-keyboard.h"
 
 static Atom Atom_MB_IM_INVOKER_COMMAND;
 
-void
-mb_kbd_remote_init (MBKeyboardUI *ui)
-{
-  Atom_MB_IM_INVOKER_COMMAND = XInternAtom(mb_kbd_ui_x_display(ui), 
-					   "_MB_IM_INVOKER_COMMAND", False);
+void mb_kbd_remote_init(MBKeyboardUI* ui) {
+  Atom_MB_IM_INVOKER_COMMAND = XInternAtom(mb_kbd_ui_x_display(ui), "_MB_IM_INVOKER_COMMAND", False);
 }
 
-MBKeyboardRemoteOperation
-mb_kbd_remote_process_xevents (MBKeyboardUI *ui, XEvent *xevent)
-{
+MBKeyboardRemoteOperation mb_kbd_remote_process_xevents(MBKeyboardUI* ui, XEvent* xevent) {
   DBG("got a message\n");
 
-  switch (xevent->type)
-    {
-    case ClientMessage:
-      DBG("is a Client Message\n");
-      if (xevent->xclient.message_type == Atom_MB_IM_INVOKER_COMMAND)
-        {
-	  DBG("got a message of type _MB_IM_INVOKER_COMMAND, val %lu\n",
-	      xevent->xclient.data.l[0]);
-	  return xevent->xclient.data.l[0];
-	}
+  switch (xevent->type) {
+  case ClientMessage:
+    DBG("is a Client Message\n");
+    if (xevent->xclient.message_type == Atom_MB_IM_INVOKER_COMMAND) {
+      DBG("got a message of type _MB_IM_INVOKER_COMMAND, val %lu\n", xevent->xclient.data.l[0]);
+      return xevent->xclient.data.l[0];
     }
+  }
   return MBKeyboardRemoteNone;
 }
